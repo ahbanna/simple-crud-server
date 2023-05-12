@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 // mongodb starts
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const uri =
   "mongodb+srv://tutul5800:mI9VeLY5onayiJWS@cluster0.k7baavr.mongodb.net/?retryWrites=true&w=majority";
 
@@ -45,6 +45,17 @@ async function run() {
       res.send(result);
     });
     // create API to receive data from client side end
+
+    // Delete starts
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log("delete", id);
+      const query = { _id: new ObjectId(id) };
+      const result = await userCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    // Delete end
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
