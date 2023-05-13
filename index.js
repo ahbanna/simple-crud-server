@@ -31,22 +31,24 @@ async function run() {
     const userCollection = database.collection("haiku");
     // come from node mongodb crud end
 
+    // RAED starts
     app.get("/users", async (req, res) => {
       const cursor = userCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
+    // READ end
 
-    // create API to receive data from client side start
+    // CREATE API to receive data from client side start
     app.post("/users", async (req, res) => {
       const user = req.body;
       console.log("New User", user);
       const result = await userCollection.insertOne(user);
       res.send(result);
     });
-    // create API to receive data from client side end
+    // CREATE API to receive data from client side end
 
-    // Delete starts
+    // DELETE starts
     app.delete("/users/:id", async (req, res) => {
       const id = req.params.id;
       console.log("delete", id);
@@ -54,8 +56,39 @@ async function run() {
       const result = await userCollection.deleteOne(query);
       res.send(result);
     });
+    // DELETE end
 
-    // Delete end
+    // UPDATE starts
+    app.get("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const user = await userCollection.findOne(query);
+      res.send(user);
+    });
+
+    // To get current information from client side
+    app.put("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const user = req.body;
+      console.log(user);
+
+      //after getting data from client side, now have to send data to mongodb
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateUser = {
+        $set: {
+          name: user.name,
+          email: user.email,
+        },
+      };
+      const result = await userCollection.updateOne(
+        filter,
+        updateUser,
+        options
+      );
+      res.send(result);
+    });
+    // UPDATE end
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
